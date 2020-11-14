@@ -1,0 +1,24 @@
+version: "3.8"
+
+volumes:
+  ergo_node_storage:
+  ergo_postgresql_storage:
+
+services:
+  # Ergo blockchain node
+  ergo-node:
+    build:
+      context: docker
+      dockerfile: ergo-node.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "ergo_node_storage:/home/ergo/.ergo"
+      - "${PWD}/conf/ergo-node.conf:/etc/ergo-node.conf"
+    command: --mainnet -c /etc/ergo-node.conf
+    expose:
+      - "9030"
+      - "9053"
+    ports:
+      - "9053:9053"
+      - "9030:9030"

@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: Loki log collector
+    type: loki
+    url: http://loki:3100/
+    jsonData:
+      tlsSkipVerify: true
+  - name: Ergo explorer PostgreSQL database
+    type: postgres
+    url: ergo-postgresql:5432
+    user: ergo
+    database: ergo
+    jsonData:
+      sslmode: "disable"
+    secureJsonData:
+      password: ergo

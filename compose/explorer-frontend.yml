@@ -1,0 +1,9 @@
+  # Ergo Explorer frontend
+  ergo-explorer-frontend:
+    build:
+      context: docker
+      dockerfile: ergo-explorer-frontend.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    ports:
+      - "5000:5000"

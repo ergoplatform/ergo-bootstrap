@@ -1,0 +1,180 @@
+#!/usr/bin/env bash
+
+if ! command -v docker &> /dev/null
+then
+    echo "ERROR: docker could not be found, please install it."
+    echo "Visit https://docs.docker.com/get-docker/ for more information."
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null
+then
+    echo "ERROR: docker-compose could not be found, please install it."
+    echo "Visit https://docs.docker.com/compose/install/ for more information."
+    exit 1
+fi
+
+init () {
+  if [ -f ./docker-compose.yml ]; then
+    echo "ERROR: ☝  Your cluster is already initialized."
+    echo "Run \"$0 status\" or \"$0 destroy\"."
+    echo
+    exit 1
+  fi
+
+    clear
+    echo -e "\e[1m"
+    echo "    Welcome to Σrgo bootstrap!"
+    echo -e "\e[0m"
+    echo "We're going to initialize a new Ergo Bootstrap cluster for you."
+    echo
+    echo "The Ergo blockchain node is the core of this bootstrap cluster, but there are"
+    echo "other components that you might find useful. Please refer to the documentation"
+    echo -e "available at \e[33mhttp://github.com/ergoplatform/ergo-bootstrap\e[39m to find out more about"
+    echo "each of these components."
+    echo
+    echo "❔ Do you wish to initialize the Ergo Explorer API?"
+    select yn1 in "Yes" "No"; do
+        case $yn1 in
+            Yes ) export INIT_EXPLORER_API=true;break;;
+            No ) export INIT_EXPLORER_API=false;break;;
+            * ) echo "Invalid choice.";
+        esac
+    done
+    echo
+    echo "❔ Do you wish to initialize the Ergo Explorer Frontend?"
+    select yn2 in "Yes" "No"; do
+        case $yn2 in
+            Yes ) export INIT_EXPLORER_FRONTEND=true;break;;
+            No ) export INIT_EXPLORER_FRONTEND=false;break;;
+            * ) echo "Invalid choice.";
+        esac
+    done
+    echo
+    echo "❔ Do you wish to initialize the Yoroi backend?"
+    select yn3 in "Yes" "No"; do
+        case $yn3 in
+            Yes ) export INIT_YOROI_BACKEND=true;break;;
+            No ) export INIT_YOROI_BACKEND=false;break;;
+            * ) echo "Invalid choice.";
+
+        esac
+    done
+    echo
+    echo "❔ Would you like to spin up monitoring for your cluster?"
+    select yn4 in "Yes" "No"; do
+        case $yn4 in
+            Yes ) export INIT_MONITORING=true;break;;
+            No ) export INIT_MONITORING=false;break;;
+            * ) echo "Invalid choice.";
+        esac
+    done
+
+    cat compose/common.yml > docker-compose.yml
+    if $INIT_EXPLORER_API; then cat compose/explorer-backend.yml >> docker-compose.yml; fi;
+    if $INIT_EXPLORER_FRONTEND; then cat compose/explorer-frontend.yml >> docker-compose.yml; fi;
+    if $INIT_YOROI_BACKEND; then cat compose/yoroi-backend.yml >> docker-compose.yml; fi;
+    if $INIT_MONITORING; then cat compose/monitoring.yml >> docker-compose.yml; fi;
+    echo >> docker-compose.yml
+    echo "# Generated on $(date) by ergo-bootstrap" >> docker-compose.yml
+    echo
+
+    echo "Congratulations! Your cluster has been initialized. Pick up"
+    echo "a good book, brew some coffee, this will take some time."
+    echo
+    echo "Press Enter to Continue."
+    read  -n 1
+    docker-compose up -d --remove-orphans
+}
+
+start () {
+  docker-compose start
+}
+
+stop () {
+  docker-compose stop
+}
+
+status () {
+
+  DOCKER_COMPOSE_PS=$(docker ps -a --format 'table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}');
+  echo "$DOCKER_COMPOSE_PS" | egrep 'ergo|NAME'
+  echo
+  # TODO: Extract the port numbers directly from containers and test with nc if they are up
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node Panel                                        http://localhost:9053/panel/"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node API                                          http://localhost:9053/"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-explorer-api" ]] && echo "Ergo Explorer API                                      http://localhost:8080/"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-explorer-frontend" ]] && echo "Ergo Explorer                                          http://localhost:5000/"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "yoroi" ]] && echo "Yoroi backend API                                      http://localhost:3001/api/v2/bestblock"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "grafana" ]] && echo "Grafana metrics                                        http://localhost:3000/ (user admin / password admin)"
+
+}
+
+destroy () {
+
+    if [ ! -f ./docker-compose.yml ]; then
+    echo "Could not find an existing configuration."
+    echo "Run \"$0 init\" to create a new cluster."
+    echo
+    exit 1
+    fi
+    echo "Here be dragons!"
+    echo
+    echo "Do you REALLY want to DESTROY your current cluster?"
+    select yn1 in "Yes" "No"; do
+        case $yn1 in
+            Yes ) break;;
+            No ) exit;;
+            * ) echo "Invalid choice.";
+        esac
+    done
+    echo
+    docker-compose rm -s
+    rm docker-compose.yml
+    echo
+    DANGLING_VOLUMES=$(docker volume ls --format '{{.Name}}'|grep ergo-bootstrap)
+    echo
+    echo "The following volumes have been left after the cluster:"
+    echo
+    echo "$DANGLING_VOLUMES"
+    echo
+    echo "Do you REALLY want to DESTROY your current cluster volumes? You will lose all data."
+    select yn1 in "Yes" "No"; do
+        case $yn1 in
+            Yes ) break;;
+            No ) exit;;
+            * ) echo "Invalid choice.";
+        esac
+    done
+    echo
+    echo "$DANGLING_VOLUMES" | xargs -r docker volume rm
+    echo "All gone."
+}
+
+case "$1" in
+        init)
+            init
+            ;;
+
+        start)
+            start
+            ;;
+        stop)
+           stop
+           ;;
+        status)
+            status
+            ;;
+        destroy)
+            destroy
+            ;;
+        *)
+            echo "Usage: $0 {init|status|destroy}"
+            echo
+            echo "    init      Initialize an ergo bootstrap cluster"
+            echo "    start     Start the cluster"
+            echo "    stop      Stop the cluster"
+            echo "    status    Get status of an initialized cluster"
+            echo "    destroy   Destroy the current cluster"
+            exit 1
+esac

@@ -1,0 +1,15 @@
+  # Yoroi backend
+  yoroi-backend:
+    build:
+      context: docker
+      dockerfile: yoroi-backend.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "${PWD}/conf/yoroi-backend.js:/etc/yoroi-backend.js"
+    environment:
+      - NODE_CONFIG_RUNTIME_JSON=/etc/yoroi-backend.js
+    ports:
+      - "3001:3001"
+    links:
+      - "ergo-explorer-api"

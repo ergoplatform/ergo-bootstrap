@@ -1,0 +1,72 @@
+  # Databases required by the Ergo explorer backends
+  ergo-postgresql:
+    build:
+      context: docker
+      dockerfile: ergo-postgresql.Dockerfile
+    volumes:
+      - "ergo_postgresql_storage:/var/lib/postgresql/data"
+    expose:
+      - "5432"
+  ergo-redis:
+    image: redis:latest
+    expose:
+      - "6379"
+
+  # Ergo Explorer backend services
+  ergo-explorer-api:
+    build:
+      context: docker
+      dockerfile: ergo-explorer-backend-api.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "${PWD}/conf/ergo-backend.conf:/etc/ergo-backend.conf"
+    command: /etc/ergo-backend.conf
+    ports:
+      - "8080:8080"
+    links:
+      - "ergo-node"
+      - "ergo-postgresql"
+      - "ergo-redis"
+
+  ergo-explorer-backend-chain-grabber:
+    build:
+      context: docker
+      dockerfile: ergo-explorer-backend-chain-grabber.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "${PWD}/conf/ergo-backend.conf:/etc/ergo-backend.conf"
+    command: /etc/ergo-backend.conf
+    links:
+      - "ergo-node"
+      - "ergo-postgresql"
+      - "ergo-redis"
+
+  ergo-explorer-utx-tracker:
+    build:
+      context: docker
+      dockerfile: ergo-explorer-backend-utx-tracker.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "${PWD}/conf/ergo-backend.conf:/etc/ergo-backend.conf"
+    command: /etc/ergo-backend.conf
+    links:
+      - "ergo-node"
+      - "ergo-postgresql"
+      - "ergo-redis"
+
+  ergo-explorer-utx-broadcaster:
+    build:
+      context: docker
+      dockerfile: ergo-explorer-backend-utx-broadcaster.Dockerfile
+      args:
+        - ERGO_NIX=$ERGO_NIX_SOURCE
+    volumes:
+      - "${PWD}/conf/ergo-backend.conf:/etc/ergo-backend.conf"
+    command: /etc/ergo-backend.conf
+    links:
+      - "ergo-node"
+      - "ergo-postgresql"
+      - "ergo-redis"
