@@ -53,52 +53,7 @@ Usage: ./ergo-bootstrap {init|start|stop|status|destroy}
 
 ### Initializing your cluster
 
-```
-$ ./ergo-bootstrap init
-
-    Welcome to Σrgo bootstrap!
-
-We're going to initialize a new Ergo Bootstrap cluster for you.
-
-The Ergo blockchain node is the core of this bootstrap cluster, but there are
-other components that you might find useful. Please refer to the documentation
-available at http://github.com/ergoplatform/ergo-bootstrap to find out more about
-each of these components.
-
-❔ Do you wish to initialize the Ergo Explorer API?
-1) Yes
-2) No
-#? 1
-
-❔ Do you wish to initialize the Ergo Explorer Frontend?
-1) Yes
-2) No
-#? 2
-
-❔ Do you wish to initialize the Yoroi backend?
-1) Yes
-2) No
-#? 2
-
-❔ Would you like to spin up monitoring for your cluster?
-1) Yes
-2) No
-#? 2
-
-Congratulations! Your cluster has been initialized. Pick up
-a good book, brew some coffee, this will take some time.
-
-Press Enter to Continue.
-
-Starting ergo-bootstrap_ergo-postgresql_1 ... done
-Starting ergo-bootstrap_ergo-redis_1      ... done
-Starting ergo-bootstrap_ergo-node_1       ... done
-Starting ergo-bootstrap_ergo-explorer-utx-broadcaster_1       ... done
-Starting ergo-bootstrap_ergo-explorer-api_1                   ... done
-Starting ergo-bootstrap_ergo-explorer-utx-tracker_1           ... done
-Starting ergo-bootstrap_ergo-explorer-backend-chain-grabber_1 ... done
-
-```
+![Ergo bootstrap init](.github/ergo-bootstrap-init.svg)
 
 ### Starting and stopping your cluster
 
