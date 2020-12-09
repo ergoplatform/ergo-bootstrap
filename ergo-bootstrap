@@ -101,12 +101,12 @@ status () {
   echo "$DOCKER_COMPOSE_PS" | egrep 'ergo|NAME'
   echo
   # TODO: Extract the port numbers directly from containers and test with nc if they are up
-  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node Panel                                        http://localhost:9053/panel/"
-  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node API                                          http://localhost:9053/"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node Panel                                        http://localhost:9053/panel/ (API key: hello)"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-node" ]] && echo "Ergo Node API                                          http://localhost:9053/ (API key: hello)"
   [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-explorer-api" ]] && echo "Ergo Explorer API                                      http://localhost:8080/"
   [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "ergo-explorer-frontend" ]] && echo "Ergo Explorer                                          http://localhost:5000/"
   [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "yoroi" ]] && echo "Yoroi backend API                                      http://localhost:3001/api/v2/bestblock"
-  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "grafana" ]] && echo "Grafana metrics                                        http://localhost:3000/ (user admin / password admin)"
+  [[ "echo \"$DOCKER_COMPOSE_PS\" | grep Up" =~ "grafana" ]] && echo "Grafana metrics                                        http://localhost:3000/ (user: admin / password: admin)"
 
 }
 
