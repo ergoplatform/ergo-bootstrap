@@ -1,6 +1,6 @@
 FROM postgres
 
-ARG SCHEMA=https://raw.githubusercontent.com/ergoplatform/explorer-backend/0025774196a6103dd3b48e35bd99ef9dcf3cb109/modules/explorer-core/src/main/resources/db/V6__Schema.sql
+ARG SCHEMA=https://raw.githubusercontent.com/ergoplatform/explorer-backend/master/modules/explorer-core/src/main/resources/db/V9__Schema.sql
 
 ENV POSTGRES_DB ergo
 # Please note we're exposing the password here,
